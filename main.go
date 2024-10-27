@@ -6,6 +6,38 @@ import (
 	"time"
 )
 
+/*
+
+"Привет!
+
+Хороший разработчик чётко следует всем требованиям задания"©. (Пруф: https://sun9-51.userapi.com/impg/cUhVKfJgre4oRcB8bmaeya2W7gsMy7WI7O9V-A/JQj-wZ_5LWI.jpg?size=771x151&quality=95&sign=c25ec83bde4c9fffab947d57cb33cb22&type=album)
+
+Также задание: *ничего не говорит про проверки*.
+
+Я прекрасно понимаю, что в работе приходится учитывать множество факторов, которые могут сломать код.
+Но в то же время, в работе часто приходится отклоняться от начального ТЗ,
+если оно далеко не идеально, либо слишком расплывчато.
+Бывает и такое, что код, написанный предыдущим программистом вообще не будет работать с учётом поправок, которые надо внести по ТЗ.
+
+Поэтому в данном случае надо убрать явный призыв сделать только то, что написано в задании, если вы требуете другого.
+Либо оставить намёк на проверки. В противном случае логика вызовет парадокс (панику).
+
+Можно написать фразу так:
+"Хороший разработчик чётко следует всем требованиям задания И проверяет деления на ноль ^_~"
+
+P.S. Проверки добавлены, info для swimming переделанo.
+
+Хочу также отметить, что в этом случае получается, что при средней скорости 0.17 км\ч
+Дистанция остаётся  2.76 км. И дело в том, что эти значения рассчитываются от разных переменных.
+Дистанция от гребков и длины гребка. А скорость от длины бассейна.
+Получается, что за 2000 гребков длиной 1,38м дистанция будет 2.76 км.
+Но в то же время, проплывая бассейн  длиной 50 метров 5 раз (250m) за 90 минут, средняя скорость будет ~0.17
+Нет связи между пройденным расстоянием и габаритами бассейна.
+Логичнее было рассчитать как было у меня, взяв скорость из общего расчёта. В этом случае она будет правильная.
+А длину бассейна можно просто удалить. Ну или можно использовать, чтобы понять сколько раз его проплыли. Но не для расчётов.
+
+*/
+
 // Общие константы для вычислений.
 const (
 	MInKm      = 1000 // количество метров в одном километре
@@ -127,6 +159,11 @@ type Walking struct {
 // Это переопределенный метод Calories() из Training.
 func (w Walking) Calories() float64 {
 	// вставьте ваш код ниже
+	if w.Height == 0 || w.Height < 0 {
+		fmt.Println("Неправильно указан рост")
+		return 0
+	}
+
 	return (CaloriesWeightMultiplier*w.Weight + ((math.Pow(w.meanSpeed()*KmHInMsec, 2))/(w.Height/CmInM))*CaloriesSpeedHeightMultiplier*w.Weight) * w.Duration.Minutes()
 }
 
@@ -158,6 +195,10 @@ type Swimming struct {
 // Это переопределенный метод Calories() из Training.
 func (s Swimming) meanSpeed() float64 {
 	// вставьте ваш код ниже
+	if s.Duration.Hours() == 1 || s.Duration.Hours() < 0 {
+		fmt.Println("Неправильно указано время тренировки")
+		return 0
+	}
 	return float64(s.LengthPool) * float64(s.CountPool) / MInKm / s.Duration.Hours()
 }
 
@@ -168,13 +209,20 @@ func (s Swimming) meanSpeed() float64 {
 func (s Swimming) Calories() float64 {
 	// вставьте ваш код ниже
 	return (s.meanSpeed() + SwimmingCaloriesMeanSpeedShift) * SwimmingCaloriesWeightMultiplier * s.Weight * s.Duration.Hours()
+
 }
 
 // TrainingInfo returns info about swimming training.
 // Это переопределенный метод TrainingInfo() из Training.
 func (s Swimming) TrainingInfo() InfoMessage {
 	// вставьте ваш код ниже
-	return s.Training.TrainingInfo()
+	return InfoMessage{
+		TrainingType: s.TrainingType,
+		Duration:     s.Duration,
+		Distance:     s.distance(),
+		Speed:        s.meanSpeed(),
+		Calories:     s.Calories(),
+	}
 }
 
 // ReadData возвращает информацию о проведенной тренировке.
