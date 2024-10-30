@@ -195,7 +195,7 @@ type Swimming struct {
 // Это переопределенный метод Calories() из Training.
 func (s Swimming) meanSpeed() float64 {
 	// вставьте ваш код ниже
-	if s.Duration.Hours() == 1 || s.Duration.Hours() < 0 {
+	if s.Duration.Hours() == 0 || s.Duration.Hours() < 0 {
 		fmt.Println("Неправильно указано время тренировки")
 		return 0
 	}
